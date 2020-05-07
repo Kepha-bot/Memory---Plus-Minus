@@ -50,6 +50,20 @@ class Carte:
     def retourner(self):
         self._visible = not self._visible
 
+class CarteMemory(Carte):
+    def __init__(self, valeur, symbole):
+        Carte.__init__(self, valeur, symbole)
+
+    def correspond(self, carte2):
+        return self._symbole==carte2._symbole and self._valeur==carte2._valeur
+
+class Carte32(Carte):
+    def __init__(self, valeur, symbole):
+        Carte.__init__(self, valeur, symbole)
+
+    def correspond(self, carte2):
+        return (self._symbole==("T" or "P") and carte2._symbole==("T" or "P")) or self._symbole==("H" or "C") and carte2._symbole==("H" or "C")) and self._valeur==carte2._valeur 
+
 class Plateau:
     def __init__(self, nbPaires):
         self._paquet = []
@@ -59,8 +73,8 @@ class Plateau:
         if self._nbPaires>13 or self._nbPaires<0:
             self._nbPaires=10
         for i in range (0, self._nbPaires):
-            carteTmp1=Carte(i, chr(i+65))
-            carteTmp2=Carte(i, chr(i+65))
+            carteTmp1=CarteMemory(i, chr(i+65))
+            carteTmp2=CarteMemory(i, chr(i+65))
             self._paquet.append(carteTmp1)
             self._paquet.append(carteTmp2)
             
@@ -92,7 +106,7 @@ class Plateau:
             if carte!=0 and carte%self._dimension == 0:
                ligne+='\n'
             ligne+="["+str(carte+1).zfill(2)+"]"+str(self._paquet[carte])+" "          
-        return ligne
+        return ligne        
 
 class Joueur:
     def __init__(self, nom = "Inconnu"):
@@ -196,7 +210,7 @@ class Memory:
             carteTmp2.retourner()       
             print(self._plateau)
 
-            if (carteTmp1._valeur==carteTmp2._valeur) and (carteTmp1._symbole==carteTmp2._symbole):
+            if carteTmp1.correspond(carteTmp2):
                 print("Bonne paire.")
                 joueurTmp._cartesGagnees.append(str(carteTmp1))
                 carteTmp1._enJeu=False
@@ -222,8 +236,7 @@ def main():
     j3 = Joueur("Carole")
     j4 = Joueur("Anais")
     
-    #nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
-    nbPaires = 1
+    nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
     
     jeu = Memory([j1, j2, j3, j4], nbPaires)
     jeu.play()
