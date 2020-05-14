@@ -1,0 +1,22 @@
+Pierre Friboulet - IRA3 - Projet Python
+
+J'ai peur d'avoir fait un hors sujet concernant le jeu du +/-, il reste jouable mais je pense qu'il n'est pas sous la forme attendue.
+
+Le joueur ne peut pas sélectionner la carte qu'il veut retourner pour avancer dans le jeu du +/-. On déroule le paquet de carte comme il vient, ce qui m'empêche d'avoir un affichage identique entre les deux jeux, et à la création d'une fonction str spécifique pour chaque.
+Je pense que l'idée de base était d'avoir la même présentation entre le memory et le +/- et que le joueur puisse choisir sa prochaine carte. On aurait ainsi pu garder le même affichage.
+Je me suis malheureuement rendu compte de cette erreur trop tard.
+
+Concernant les jeux, le cahier des charges est rempli :
+	- On peut choisir le nombre de joueur et les nommer
+	- On peut choisir le jeu à jouer
+	- On peut jouer au memory avec les 2 paquets
+	- Affichage du memory sous forme d'une grille carrée
+	- Affichage du gagnant et des scores à la fin d'une partie
+	
+Il y a cependant certaines limites :
+	- Non relance auto du programme à la fin d'une partie d'un jeu
+	- Il y a quelques vérifications sur les inputs, mais c'est assez sommaire. L'utilisateur est attendu à rentrer les bons inputs pour que les jeux ne crashent pas
+	- Certains bouts de code sont réutilisés, il faudrait les rendre globaux ou alors créer une fonction dans une classe pour éviter la duplication de code
+	
+Le cours était bien, c'était intéressant de pouvoir coder quelque chose et de voir votre façon de faire à côté. Un rappel sur les fonctions récursives est généralement utile et certains de mes camarades ont découvert leur puissance.
+Si j'ai une remarque à faire ce serait sur la clarté du sujet pour le projet. Beaucoup de personnes (moi compris) se sont posées beaucoup de questions sur la compréhension du sujet.

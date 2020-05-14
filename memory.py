@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 class Carte:
     def __init__(self, valeur, symbole):
@@ -7,6 +8,7 @@ class Carte:
         self._symbole = symbole
         self._visible = False
         self._dos = "#####"
+        ##La variable enJeu permet de savoir si la carte est toujours active dans le jeu du memory
         self._enJeu = True
         
     def __get_valeur(self):
@@ -61,9 +63,11 @@ class Carte32(Carte):
     def __init__(self, valeur, symbole):
         Carte.__init__(self, valeur, symbole)
 
+    ##Permet de vérifier si les suites correspondent ainsi que les valeurs
     def correspond(self, carte2):
         return ((self._symbole in ["C", "S"] and carte2._symbole in ["C", "S"]) or (self._symbole in ["H", "D"] and carte2._symbole in ["H", "D"])) and (self._valeur==carte2._valeur)
 
+    ##Transformation des lettres en leur valeur chiffrée respective pour pouvoir les comparer
     def comparer(self, carte2):
         valeurTmp1=self._valeur
         valeurTmp2=carte2._valeur
@@ -118,7 +122,7 @@ class Plateau:
         self._nbCartes = len(self._paquet)
         self._nbCartesRestantes = len(self._paquet)-1
         
-        
+        ##Permet de connaitre la dimension du carré pour la présentation du memory sur le plateau
         self._dimension = math.sqrt(self._nbPaires*2)
         if self._dimension%1!=0:
             self._dimension = int(self._dimension)+1
@@ -141,6 +145,7 @@ class Plateau:
         
     nbPairesRestantes = property(__get_nbPairesRestantes, __set_nbPairesRestantes)    
 
+    ##Affichage du jeu de Memory avec son ration carré
     def strMemory(self):
         ligne = ""
         for carte in range (0, len(self._paquet)):
@@ -149,6 +154,7 @@ class Plateau:
             ligne+="["+str(carte+1).zfill(2)+"]"+str(self._paquet[carte])+" "          
         return ligne
 
+    ##Affichage du jeu +/-, on voit seulement la dernière carte retournée à droite, et le reste du deck face cachée à gauche
     def strCarte32(self, indice):
         ligne = ""
         self._paquet[indice].retourner()
@@ -215,9 +221,13 @@ class Memory:
         return chaine
     
     def play(self):
-        numJoueur = -1
-        perdu = True
+        numJoueur = 0
+        perdu = False
+        joueurTmp=self._listeJoueurs[numJoueur]
+        
         while(self._plateau._nbPairesRestantes!=0):
+            ##Si le précédent joueur a perdu alors on passe au joueur suivant
+            ##Le modulo permet de boucler une fois tous les joueurs passés
             if perdu == True:
                 numJoueur+=1
                 numJoueur=numJoueur%(len(self._listeJoueurs))
@@ -262,13 +272,16 @@ class Memory:
 
             if carteTmp1.correspond(carteTmp2):
                 print("Bonne paire.")
+                ##On ajoute les cartes gagnées à la liste du joueur courrant
                 joueurTmp._cartesGagnees.append(str(carteTmp1))
+                ##On définit les cartes comme n'étant plus en jeu, elles ne passeront plus les vérifications pour le choix d'une carte
                 carteTmp1._enJeu=False
                 joueurTmp._cartesGagnees.append(str(carteTmp2))
                 carteTmp2._enJeu=False
                 self._plateau._nbPairesRestantes-=1
                 joueurTmp._score+=1
                 joueurTmp._nbCoups+=1
+                ##J'ai choisi de laisser les cartes gagnées sur le plateau de jeu, face visible. Sinon il faudrait redimenssionner la grille d'affichage à chaque paire trouvée et les anciennes cartes se verraient déplacées, ce qui n'est pas le but du memory
             else:
                 print("Mauvaise paire.")
                 carteTmp1.retourner()
@@ -283,6 +296,7 @@ class PlusMoins:
         self._listeJoueurs = joueurs
         random.shuffle(self._listeJoueurs)
         self._plateau = Plateau(nbPaires, typePaquet)
+        ##La variable self._indice permet de savoir à quelle carte nous sommes dans le paquet
         self._indice = 0
 
     def __str__(self):
@@ -293,12 +307,14 @@ class PlusMoins:
         return chaine
 
     def play(self):
-        numJoueur = -1
-        perdu = True
+        numJoueur = 0
+        perdu = False
         scoreCourrant = 0
+        joueurTmp=self._listeJoueurs[numJoueur]
         
         while(self._plateau._nbCartesRestantes!=0):
-            print(self._plateau._nbCartes)
+            ##Si le précédent joueur a perdu alors on passe au joueur suivant
+            ##Le modulo permet de boucler une fois tous les joueurs passés
             if perdu == True:
                 numJoueur+=1
                 numJoueur=numJoueur%(len(self._listeJoueurs))
@@ -316,18 +332,21 @@ class PlusMoins:
                     choix=True
                 else:
                     print("Merci de répondre [+] ou [-].")
-
+            
             carteTmp1=self._plateau._paquet[self._indice]
             print("On retourne la carte d'après.")
             self._indice+=1
             print(self)
             carteTmp2=self._plateau._paquet[self._indice]
 
+            ##La fonction comparer renvoie True si la valeur de la carte 1 est plus grande que la valeur de la carte 2
             if (carteTmp1.comparer(carteTmp2) and valeurChoix=="-") or (not(carteTmp1.comparer(carteTmp2)) and valeurChoix=="+"):
                 print("Bonne supposition.")
                 scoreCourrant+=1
                 carteTmp1.retourner()
                 joueurTmp._cartesGagnees.append(str(carteTmp1))
+                ##Le joueur augmente son score total uniquement si le score courrant est plus élevé que son score enregistré
+                ##Le score courant est réinitialisé si le joueur perd
                 if (joueurTmp._score<scoreCourrant):
                     joueurTmp._score=scoreCourrant
             else:
@@ -363,10 +382,13 @@ def main():
         if typePaquet==0:
             nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
         else:
+            ##Si l'on prend le paquet de 32 cartes pour le memory alors on ne peut pas choisir le nombre de paires à trouver, il faudra trouver toutes les paires du paquet, soit 16 paires
             nbPaires=16
         jeu = Memory(listeJoueurs, nbPaires, typePaquet)
     else:
         jeu = PlusMoins(listeJoueurs)
     jeu.play()
+    ##On laisse le temps aux joueurs de lire le tableau des scores
+    time.sleep(5)
         
 main()
