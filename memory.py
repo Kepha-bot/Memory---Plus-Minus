@@ -91,6 +91,8 @@ class Plateau:
                     self._paquet.append(carteTmp1)
 
         self._nbPairesRestantes = self._nbPaires
+        self._nbCartes = len(self._paquet)
+        self._nbCartesRestantes = len(self._paquet)
         
         
         self._dimension = math.sqrt(self._nbPaires*2)
@@ -121,6 +123,16 @@ class Plateau:
             if carte!=0 and carte%self._dimension == 0:
                ligne+='\n'
             ligne+="["+str(carte+1).zfill(2)+"]"+str(self._paquet[carte])+" "          
+        return ligne
+
+    def strCarte32(self, indice):
+        ligne = ""
+        self._paquet[indice].retourner()
+        if indice<31:
+            ligne+= str(self._paquet[indice+1]) +" "+str(self._paquet[indice])
+        else:
+            ligne+= str(self._paquet[indice])
+        self._paquet[indice].retourner()         
         return ligne
     
 class Joueur:
@@ -179,7 +191,6 @@ class Memory:
         return chaine
     
     def play(self):
-        nbCartes = len(self._plateau._paquet)
         numJoueur = -1
         perdu = True
         while(self._plateau._nbPairesRestantes!=0):
@@ -195,7 +206,7 @@ class Memory:
             choix=False
             while choix==False:
                 indiceChoix1=int(input("Première carte à retourner : "))-1
-                if indiceChoix1>=0 and indiceChoix1<nbCartes:
+                if indiceChoix1>=0 and indiceChoix1<self._plateau._nbCartes:
                     if self._plateau._paquet[indiceChoix1]._enJeu==True:
                         choix=True
                     else:
@@ -210,7 +221,7 @@ class Memory:
             choix=False
             while choix==False:
                 indiceChoix2=int(input("Première carte à retourner : "))-1
-                if indiceChoix2>=0 and indiceChoix2<nbCartes:
+                if indiceChoix2>=0 and indiceChoix2<self._plateau._nbCartes:
                     if self._plateau._paquet[indiceChoix2]._enJeu==True:                        
                         if indiceChoix1!=indiceChoix2:
                             choix=True
@@ -245,19 +256,51 @@ class Memory:
         for joueur in range (0, len(self._listeJoueurs)):
             print(str(self._listeJoueurs[joueur]))
 
+class PlusMoins:
+    def __init__(self, joueurs, nbPaires=16, typePaquet=1):
+        self._listeJoueurs = joueurs
+        random.shuffle(self._listeJoueurs)
+        self._plateau = Plateau(nbPaires, typePaquet)
+        self._indice = 0
+
+    def __str__(self):
+        print("Nombre de cartes : "+str(self._plateau._nbCartes)+", Nombre de cartes restantes : "+str(self._plateau._nbCartesRestantes))
+        chaine = self._plateau.strCarte32(self._indice)+"\n"       
+        for joueur in range (0, len(self._listeJoueurs)):
+            chaine+=str(self._listeJoueurs[joueur])+"\n"          
+        return chaine
+
+    def play(self):
+        numJoueur = -1
+        perdu = True
+        
+        for i in (0, self._plateau._nbCartes) :
+            if perdu == True:
+                numJoueur+=1
+                numJoueur=numJoueur%(len(self._listeJoueurs))
+                joueurTmp=self._listeJoueurs[numJoueur]
+                perdu = False
+                
+            print(self)
+            print("Au tour de "+str(joueurTmp._nom))
+            return False
+
 def main():
     j1 = Joueur("Paul")
     j2 = Joueur("François")
     j3 = Joueur("Carole")
     j4 = Joueur("Anais")
 
-    typePaquet = int(input("Veuillez choisir un type de paquet >> [0] Memory // [1] 32 Cartes : "))
-    if typePaquet==0:
-        nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
+    typeJeu = int(input("Veuillez choisir un type de jeu >> [0] Memory // [1] Plus / Moins : "))
+    if typeJeu == 0:
+        typePaquet = int(input("Veuillez choisir un type de paquet >> [0] Memory // [1] 32 Cartes : "))
+        if typePaquet==0:
+            nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
+        else:
+            nbPaires=16
+        jeu = Memory([j1, j2, j3, j4], nbPaires, typePaquet)
     else:
-        nbPaires=16
-    
-    jeu = Memory([j1, j2, j3, j4], nbPaires, typePaquet)
+        jeu = PlusMoins([j1, j2, j3, j4])
     jeu.play()
         
 main()
