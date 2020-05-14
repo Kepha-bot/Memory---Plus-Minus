@@ -139,7 +139,7 @@ class Plateau:
     def __set_nbPairesRestantes(self, nbPairesRestantes):
         self._nbPairesRestantes = nbPairesRestantes
         
-    nbPairesRestantes = property(__get_nbPairesRestantes, __set_nbPairesRestantes)
+    nbPairesRestantes = property(__get_nbPairesRestantes, __set_nbPairesRestantes)    
 
     def strMemory(self):
         ligne = ""
@@ -276,14 +276,7 @@ class Memory:
                 perdu = True
                 joueurTmp._nbCoups+=1
 
-        print("La partie est terminée ! Voici les scores : ")
-        scoreTmp=0
-        for joueur in range (0, len(self._listeJoueurs)):
-            if scoreTmp <= self._listeJoueurs[joueur]._score:
-                scoreTmp=self._listeJoueurs[joueur]._score
-                gagnant=self._listeJoueurs[joueur]          
-            print(str(self._listeJoueurs[joueur]))
-        print(gagnant._nom+" gagne la partie !")
+        afficherGagnant(self._listeJoueurs)
         
 class PlusMoins:
     def __init__(self, joueurs, nbPaires=16, typePaquet=1):
@@ -343,16 +336,19 @@ class PlusMoins:
             
             joueurTmp._nbCoups+=1   
             self._plateau._nbCartesRestantes-=1
+        
+        afficherGagnant(self._listeJoueurs)        
 
-        print("La partie est terminée ! Voici les scores : ")
-        scoreTmp=0
-        for joueur in range (0, len(self._listeJoueurs)):
-            if scoreTmp <= self._listeJoueurs[joueur]._score:
-                scoreTmp=self._listeJoueurs[joueur]._score
-                gagnant=self._listeJoueurs[joueur]          
-            print(str(self._listeJoueurs[joueur]))
-        print(gagnant._nom+" gagne la partie !")
-                
+def afficherGagnant(listeJoueurs):
+    print("La partie est terminée ! Voici les scores : ")
+    scoreTmp=0
+    for joueur in range (0, len(listeJoueurs)):
+        if scoreTmp <= listeJoueurs[joueur]._score:
+            scoreTmp=listeJoueurs[joueur]._score
+            gagnant=listeJoueurs[joueur]          
+        print(str(listeJoueurs[joueur]))
+    print(gagnant._nom+" gagne la partie !")
+         
 def main():
     nbJoueur = int(input("Veuillez renseigner le nombre de joueurs : "))
     listeJoueurs = []
