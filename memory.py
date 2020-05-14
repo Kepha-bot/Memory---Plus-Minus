@@ -62,26 +62,41 @@ class Carte32(Carte):
         Carte.__init__(self, valeur, symbole)
 
     def correspond(self, carte2):
-        return (self._symbole==("T" or "P") and carte2._symbole==("T" or "P")) or self._symbole==("H" or "C") and carte2._symbole==("H" or "C")) and self._valeur==carte2._valeur 
-
+        return ((self._symbole in ["C", "S"] and carte2._symbole in ["C", "S"]) or (self._symbole in ["H", "D"] and carte2._symbole in ["H", "D"])) and (self._valeur==carte2._valeur)
+    
 class Plateau:
-    def __init__(self, nbPaires):
+    def __init__(self, nbPaires, typePaquet):
         self._paquet = []
         self._nbPaires = nbPaires
-        self._nbPairesRestantes = nbPaires
-        
-        if self._nbPaires>13 or self._nbPaires<0:
-            self._nbPaires=10
-        for i in range (0, self._nbPaires):
-            carteTmp1=CarteMemory(i, chr(i+65))
-            carteTmp2=CarteMemory(i, chr(i+65))
-            self._paquet.append(carteTmp1)
-            self._paquet.append(carteTmp2)
+
+        ##typePaquet==0 >> paquet de memory classique
+        if typePaquet==0:          
+            if self._nbPaires>13 : 
+                print(str(self._nbPaires)+" est trop grand, le nombre de paires est rabaissé à 10.")
+                self._nbPaires=10
+            if self._nbPaires<0 :
+                print(str(self._nbPaires)+" est trop petit, le nombre de paires est augmenté à 10.")
+                self._nbPaires=10
             
+            for i in range (0, self._nbPaires):
+                carteTmp1=CarteMemory(i, chr(i+65))
+                carteTmp2=CarteMemory(i, chr(i+65))
+                self._paquet.append(carteTmp1)
+                self._paquet.append(carteTmp2)
+        ##Sinon utilisation du paquet de 32 cartes
+        else:
+            for i in ["S", "H", "C", "D"]:
+                for j in [7, 8, 9, 10, 'V', 'D', 'K', 'A']:
+                    carteTmp1=Carte32(j, i)
+                    self._paquet.append(carteTmp1)
+
+        self._nbPairesRestantes = self._nbPaires
+        
+        
         self._dimension = math.sqrt(self._nbPaires*2)
         if self._dimension%1!=0:
             self._dimension = int(self._dimension)+1
-            
+
         random.shuffle(self._paquet)
 
     def __get_nbPaires(self):
@@ -100,14 +115,14 @@ class Plateau:
         
     nbPairesRestantes = property(__get_nbPairesRestantes, __set_nbPairesRestantes)
 
-    def __str__(self):
+    def strMemory(self):
         ligne = ""
         for carte in range (0, len(self._paquet)):
             if carte!=0 and carte%self._dimension == 0:
                ligne+='\n'
             ligne+="["+str(carte+1).zfill(2)+"]"+str(self._paquet[carte])+" "          
-        return ligne        
-
+        return ligne
+    
 class Joueur:
     def __init__(self, nom = "Inconnu"):
         self._nom = nom
@@ -151,14 +166,14 @@ class Joueur:
         return self._nom.rjust(12)+" / Nombre de coups : "+str(self._nbCoups).zfill(2)+" / Score : "+str(self._score).zfill(2)+" / "+str(self._cartesGagnees)        
 
 class Memory:
-    def __init__(self, joueurs, nbPaires):
+    def __init__(self, joueurs, nbPaires, typePaquet):
         self._listeJoueurs = joueurs
         random.shuffle(self._listeJoueurs)
-        self._plateau = Plateau(nbPaires)
+        self._plateau = Plateau(nbPaires, typePaquet)
 
     def __str__(self):
         print("Nombre de paires : "+str(self._plateau._nbPaires)+", Nombre de paires restantes : "+str(self._plateau._nbPairesRestantes))
-        chaine = str(self._plateau)+"\n"       
+        chaine = self._plateau.strMemory()+"\n"       
         for joueur in range (0, len(self._listeJoueurs)):
             chaine+=str(self._listeJoueurs[joueur])+"\n"          
         return chaine
@@ -190,7 +205,7 @@ class Memory:
             
             carteTmp1=self._plateau._paquet[indiceChoix1]
             carteTmp1.retourner()            
-            print(self._plateau)
+            print(self._plateau.strMemory())
 
             choix=False
             while choix==False:
@@ -208,7 +223,7 @@ class Memory:
 
             carteTmp2=self._plateau._paquet[indiceChoix2]
             carteTmp2.retourner()       
-            print(self._plateau)
+            print(self._plateau.strMemory())
 
             if carteTmp1.correspond(carteTmp2):
                 print("Bonne paire.")
@@ -235,10 +250,14 @@ def main():
     j2 = Joueur("François")
     j3 = Joueur("Carole")
     j4 = Joueur("Anais")
+
+    typePaquet = int(input("Veuillez choisir un type de paquet >> [0] Memory // [1] 32 Cartes : "))
+    if typePaquet==0:
+        nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
+    else:
+        nbPaires=16
     
-    nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
-    
-    jeu = Memory([j1, j2, j3, j4], nbPaires)
+    jeu = Memory([j1, j2, j3, j4], nbPaires, typePaquet)
     jeu.play()
         
 main()
