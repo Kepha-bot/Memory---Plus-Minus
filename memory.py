@@ -344,10 +344,12 @@ class PlusMoins:
             print(str(self._listeJoueurs[joueur]))
                 
 def main():
-    j1 = Joueur("Paul")
-    j2 = Joueur("François")
-    j3 = Joueur("Carole")
-    j4 = Joueur("Anais")
+    nbJoueur = int(input("Veuillez renseigner le nombre de joueurs : "))
+    listeJoueurs = []
+    for i in range(0, nbJoueur):
+        nomTmp = input("Veuillez renseigner le nom du joueur "+str(i+1)+" : ")
+        joueurTmp = Joueur(nomTmp)
+        listeJoueurs.append(joueurTmp)
 
     typeJeu = int(input("Veuillez choisir un type de jeu >> [0] Memory // [1] Plus / Moins : "))
     if typeJeu == 0:
@@ -356,9 +358,9 @@ def main():
             nbPaires = int(input("Veuillez choisir un nompbre de paires : "))
         else:
             nbPaires=16
-        jeu = Memory([j1, j2, j3, j4], nbPaires, typePaquet)
+        jeu = Memory(listeJoueurs, nbPaires, typePaquet)
     else:
-        jeu = PlusMoins([j1, j2, j3, j4])
+        jeu = PlusMoins(listeJoueurs)
     jeu.play()
         
 main()
