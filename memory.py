@@ -244,7 +244,7 @@ class Memory:
 
             choix=False
             while choix==False:
-                indiceChoix2=int(input("Première carte à retourner : "))-1
+                indiceChoix2=int(input("Deuxième carte à retourner : "))-1
                 if indiceChoix2>=0 and indiceChoix2<self._plateau._nbCartes:
                     if self._plateau._paquet[indiceChoix2]._enJeu==True:                        
                         if indiceChoix1!=indiceChoix2:
@@ -277,9 +277,14 @@ class Memory:
                 joueurTmp._nbCoups+=1
 
         print("La partie est terminée ! Voici les scores : ")
+        scoreTmp=0
         for joueur in range (0, len(self._listeJoueurs)):
+            if scoreTmp <= self._listeJoueurs[joueur]._score:
+                scoreTmp=self._listeJoueurs[joueur]._score
+                gagnant=self._listeJoueurs[joueur]          
             print(str(self._listeJoueurs[joueur]))
-
+        print(gagnant._nom+" gagne la partie !")
+        
 class PlusMoins:
     def __init__(self, joueurs, nbPaires=16, typePaquet=1):
         self._listeJoueurs = joueurs
@@ -340,8 +345,13 @@ class PlusMoins:
             self._plateau._nbCartesRestantes-=1
 
         print("La partie est terminée ! Voici les scores : ")
+        scoreTmp=0
         for joueur in range (0, len(self._listeJoueurs)):
+            if scoreTmp <= self._listeJoueurs[joueur]._score:
+                scoreTmp=self._listeJoueurs[joueur]._score
+                gagnant=self._listeJoueurs[joueur]          
             print(str(self._listeJoueurs[joueur]))
+        print(gagnant._nom+" gagne la partie !")
                 
 def main():
     nbJoueur = int(input("Veuillez renseigner le nombre de joueurs : "))
