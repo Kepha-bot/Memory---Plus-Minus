@@ -63,6 +63,30 @@ class Carte32(Carte):
 
     def correspond(self, carte2):
         return ((self._symbole in ["C", "S"] and carte2._symbole in ["C", "S"]) or (self._symbole in ["H", "D"] and carte2._symbole in ["H", "D"])) and (self._valeur==carte2._valeur)
+
+    def comparer(self, carte2):
+        valeurTmp1=self._valeur
+        valeurTmp2=carte2._valeur
+        
+        if valeurTmp1=="V":
+            valeurTmp1=11
+        if valeurTmp1=="D":
+            valeurTmp1=12
+        if valeurTmp1=="K":
+            valeurTmp1=13
+        if valeurTmp1=="A":
+            valeurTmp1=14
+
+        if valeurTmp2=="V":
+            valeurTmp2=11
+        if valeurTmp2=="D":
+            valeurTmp2=12
+        if valeurTmp2=="K":
+            valeurTmp2=13
+        if valeurTmp2=="A":
+            valeurTmp2=14
+
+        return valeurTmp1>valeurTmp2       
     
 class Plateau:
     def __init__(self, nbPaires, typePaquet):
@@ -92,7 +116,7 @@ class Plateau:
 
         self._nbPairesRestantes = self._nbPaires
         self._nbCartes = len(self._paquet)
-        self._nbCartesRestantes = len(self._paquet)
+        self._nbCartesRestantes = len(self._paquet)-1
         
         
         self._dimension = math.sqrt(self._nbPaires*2)
@@ -273,18 +297,52 @@ class PlusMoins:
     def play(self):
         numJoueur = -1
         perdu = True
+        scoreCourrant = 0
         
-        for i in (0, self._plateau._nbCartes) :
+        while(self._plateau._nbCartesRestantes!=0):
+            print(self._plateau._nbCartes)
             if perdu == True:
                 numJoueur+=1
                 numJoueur=numJoueur%(len(self._listeJoueurs))
                 joueurTmp=self._listeJoueurs[numJoueur]
+                scoreCourrant = 0
                 perdu = False
                 
             print(self)
             print("Au tour de "+str(joueurTmp._nom))
-            return False
 
+            choix=False
+            while choix==False:
+                valeurChoix=input("La valeur de la prochaine carte sera [+] ou [-] élevée ? : ")
+                if valeurChoix in ["+", "-"]:
+                    choix=True
+                else:
+                    print("Merci de répondre [+] ou [-].")
+
+            carteTmp1=self._plateau._paquet[self._indice]
+            print("On retourne la carte d'après.")
+            self._indice+=1
+            print(self)
+            carteTmp2=self._plateau._paquet[self._indice]
+
+            if (carteTmp1.comparer(carteTmp2) and valeurChoix=="-") or (not(carteTmp1.comparer(carteTmp2)) and valeurChoix=="+"):
+                print("Bonne supposition.")
+                scoreCourrant+=1
+                carteTmp1.retourner()
+                joueurTmp._cartesGagnees.append(str(carteTmp1))
+                if (joueurTmp._score<scoreCourrant):
+                    joueurTmp._score=scoreCourrant
+            else:
+                print("Mauvaise supposition.")
+                perdu = True
+            
+            joueurTmp._nbCoups+=1   
+            self._plateau._nbCartesRestantes-=1
+
+        print("La partie est terminée ! Voici les scores : ")
+        for joueur in range (0, len(self._listeJoueurs)):
+            print(str(self._listeJoueurs[joueur]))
+                
 def main():
     j1 = Joueur("Paul")
     j2 = Joueur("François")
